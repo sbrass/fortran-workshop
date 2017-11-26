@@ -1,0 +1,4 @@
+#!/usr/bin/env python
+
+env = Environment (FORTRAN="gfortran")
+example = env.Program ("example", "example.f08")

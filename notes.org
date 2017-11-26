@@ -1,13 +1,37 @@
 #+startup: beamer
 
-#+LaTeX_CLASS: beamer
-#+LaTeX_CLASS_OPTIONS: [bigger]
+#+LaTeX_CLASS_OPTIONS: [smaller]
 #+LaTeX_HEADER: \usetheme{default}
 #+LaTeX_HEADER: \usecolortheme[accent=green]{solarized}
 
 #+COLUMNS: %40ITEM %10BEAMER_env(Env) %9BEAMER_envargs(Env Args) %4BEAMER_col(Col) %10BEAMER_extra(Extra)
 
 * Fortran Workshop
+
+** Übersicht
+
+   - Einführung 20 Minuten
+   - Vorbereitung (Installation Kompiler) 5 Minuten
+   - Geschichte 15 Minuten
+   - Syntax I (intrinsische Datentypen, I/O und Module) 10 Minuten
+   - Übung 10 Minuten
+   - Besprechung Übung 10 Minuten
+   - Syntax II (=allocatable= und /array language/) 20 Minuten
+   - Übung 20 Minuten
+   - Besprechung Übung 20 Minuten
+   - 15 Minuten Pause
+   - Syntax III (=derived types= und =pointer=) 30 Minuten
+   - Übung 30 Minuten
+   - Besprechung Übung 30 Minuten
+
+
+* Begrüßung
+
+  - Simon Braß, Doktorand in der AG Theoretische Teilchenphysik
+  - Jessica Reuter, Lehramt für Mathematik und Informatik
+
+  - 1. Tag: Geschichte, Einführung in =Fortran=
+  - 2. Tag: Objekt-orientierte Programmieren in =Fortran=
 
 * Geschichte
 
@@ -16,7 +40,7 @@
   - "Modernes" Fortran / Unterschied zu Fortran 77
   - Kompiler (Intel, GCC, Nagfor, Portland, ???)
 
-* Entwicklung von Fortran
+* Eigenschaften von Fortran
 
 ** Formula Translator (Fortran)
 
@@ -27,30 +51,60 @@
    - 1997 :: Fortran 95 als /high perfomance/ Sprache
    - 2004 :: Fortran 2003 mit Objekt-orientierten Konzepten
    - 2008 :: Fortran 2008 mit /submodules/ und /coarrays/
+   - 2012-heute :: Fortran 2015 ...
+
+* Philosophie von Fortran
 
 ** Eigenheiten
 
-   - einfache Syntax
-   - hohe Effizienz ohne durch Hardware-spezifischen Syntax abzulenken
-   - portable Software
+   - einfach-lesbare Syntax
+   - Entwicklung für Lochkarten-Computer *fixed form* für =FORTAN 66/77=
+   - Seit =Fortran 90= *free form* als Standard
+   - vergleichbare Effizienz zu Assembler-Code
 
-* Standardisierung
+* Beispiele
 
-  FORTAN wurde zum ersten Mal 1966  durch das ANSI Komitee als =FORTRAN 66= standardisiert. Es folgte 1978 der =FORTRAN 77= Standard, welche den Durchbruch der Sprache brachte.
-  FORTRAN zeichnet sich durch seinen sehr gut lesbaren Syntax und seinen effiziente Ausführung.
+** /fixed form/
 
-  Mit =Fortran 90= wurden 1991 diverse Konzepte wie /data hiding/ und abstrakte Datentypen aus anderen Sprachen wie C/C++ oder die /Array Language/ in den Standard eingeführt.
-  Darüber hinaus wurde die /free source form/ eingeführt. =Fortran 90= wurde 1997 durch den  =Fortran 95= Standard abgelöst, welcher Schwerpunkte auf High Perfomance Computing setzt.
+   #+BEGIN_SRC fortran
+     c     independent variables for real graph: number of final state
+     c     legs times 3, take away 4 for 4-momentum conservation, add 2
+     c     for x_1 and x_2, and take away an overall azimuth
+           real * 8 btilde,xx(ndiminteg),www0
+           real * 8 xrad(3)
+           real * 8 xborn(ndiminteg-3)
+   #+END_SRC
 
-  Der =Fortran 2003= Standard, erschienen in 2004, führt weitgehende, neue Konzepte:
-  - =derived types= :: =parametrized derived types=, Konstruktoren und Destruktoren (Finalizer) und Beschränkung der Zugriffbarkeit
-  - OOP :: Type-Erweiterung und Vererbung, Polymorphie, dynamische Type-Allokierung und Type-gebundene Prozeduren
-  - Datenmanipulierung :: allokiebare Komponenten, =deferred type parameters=, ...
-  - =procedure pointer= ::
-  - =C bindings= ::
-  usw.
+** /free form/
 
-  (Fast) vollständige Unterstützung des =Fortran 2003= Standards nur durch GCC [[https://gcc.gnu.org/wiki/Fortran2003Status][siehe]]
+   #+BEGIN_SRC f90
+       call self%rand_gen%rand(randkoord)
+       randkoord = self%sys_len * randkoord
+       m = int(randkoord(1)) + 1
+       n = int(randkoord(2)) + 1
+       call cyclic_coord (self, m, n, up, down, left, right)
+
+       deltaE = 2.0_dp * ( self%couple_const * self&
+            &%grid(m, n)*(self%grid(m, left) + self%grid(m, right) +&
+            & self%grid(up, n) + self%grid(down, n)) + self%mag_field &
+            &* self%grid(m, n))
+   #+END_SRC
+
+* Fortran 2003 Standard
+
+  - größte Kompiler-Unterstützung (Intel/NAGfor/GFortran): =Fortran 2003=
+  - Neuerungen in =Fortran 2003=
+
+** Neuerungen in =Fortran 2003=
+
+   - =derived types= :: =parametrized derived types=, Konstruktoren und Destruktoren (Finalizer) und Beschränkung der Zugriffbarkeit
+   - OOP :: Type-Erweiterung und Vererbung, Polymorphie, dynamische Type-Allokierung und Type-gebundene Prozeduren
+   - Datenmanipulierung :: allokiebare Komponenten, =deferred type parameters=, ...
+   - =procedure pointer= ::
+   - =C bindings= ::
+   usw.
+
+   (Fast) vollständige Unterstützung des =Fortran 2003= Standards nur durch GCC [[https://gcc.gnu.org/wiki/Fortran2003Status][siehe]]
 
 * Parallelisierung
 
@@ -63,72 +117,110 @@
 
 * Syntax und Konzepte
 
-*** Datentypen
+** Struktur
 
-**** Intrinsicher Datentypen
+*** Hauptprogramm
 
-     #+BEGIN_SRC f90
-         integer :: i                  ! Ganze Zahlen
-         real :: x                     ! Reelle Zahlen
-         complex :: z                  ! Komplexe Zahlen
-         character(len=100) :: str     ! Zeichenkette mit Länge 100
-         logical :: flag               ! Boolean (.True. oder .False.)
-         type(haus) :: eigenheim       ! Derived Type
-     #+END_SRC
+    #+BEGIN_SRC f90
+      program beispiel
+        ! use beispiel_module
+        implicit none
+        ! Variablen-Deklaration
+        ! Programm
+      contains
+        ! Prozeduren
+      end program beispiel
+    #+END_SRC
 
-     *Wichtig:* Aus Rückwartskompatibilität immer =implicit none= benutzen, damit Fortran nicht automatisch Variable mit entsprechenden Typen deklariert.
+*** Modul
 
-**** =derived types=
-     Einfacher =derived type=
-     #+BEGIN_SRC f90
-       ! Typ Definition
-       type :: haus_t
-          real :: length
-          real :: width
-          real :: height
-       end type haus_t
-       type(haus_t) :: eigenheim
-       ! Konstruktor
-       eigenheim = haus_t (10.0, 8.0, 12.0) ! Länge, Breite und Höhe
-       eigenheim = haus_t ( &               ! Beliebige Reihenfolge
-            width = 8.0, &                  ! mit explizitem Aufruf
-            height = 12.0, &                ! der Argumente
-            length = 10.0)
-       ! Oder eigener Konstruktor durch ein überladenes Interface von haus_t
-     #+END_SRC
-     Erweiterer =derived type= mit Vererbung
-     #+BEGIN_SRC f90
-         type, extends(haus_t) :: halle_t
-            character(len=20) :: fassadenfarbe = "grün"
-            logical :: brandschutz = .false.
-         end type halle_t
-         type(halle_t) :: gewerbe ! hat alle Eigenschaften von haus_t und hallo_t
-     #+END_SRC
+    #+BEGIN_SRC f90
+      module beispiel_module
+        use beispiel2_module
+        ! Variablen-Deklarationen
+        ! Typ-Definitioen
+        !
+      contains
+        ! Module-Prozeduren
+      end module beispiel_module
+    #+END_SRC
 
-**** Weitere Attribute
+** Datentypen
 
-     - public ::
-     - private ::
-     - allocatable :: Speicher kann dynamisch mit =allocate= bereit gestellt werden
-     - pointer :: Zeigevariable (kann Variable mit Attribut =target= zeigen)
-     - target :: Zielvariable
-     - dimension :: Variable ist ein Array (max. 7 dimensional)
-     - intent :: im Kontext einer Prozeduren: =in=, =out= oder =inout=, legt fest wie Variable in der Prozedure benutzt werden kann
-     - optional ::
-     - save ::
+*** Intrinsiche Datentypen
 
-     #+BEGIN_SRC f90
-         integer, public :: test ! Ist in allen Programmteilen sichtbar
-         integer, private :: private_test ! Ist in anderen Modulen nicht sichtbar/außerhalb eines Types
-         integer, dimension(10) :: array ! 1-dim. Array mit zehn Elementen
-         integer, dimension(:), allocatable :: alloc_array ! allokierbare, 1-dim. Array
-         integer, pointer :: zeiger
-         integer, target :: ziel = 42
-         !
-         allocate (alloc_array(25)) ! allokiere 25 Elemente
-         zeiger => ziel
-         zeiger => test ! Gibt eine Fehlermeldung
-     #+END_SRC
+    #+BEGIN_SRC f90
+        integer :: i                  ! Ganze Zahlen
+        real :: x                     ! Reelle Zahlen
+        complex :: z                  ! Komplexe Zahlen
+        character(len=100) :: str     ! Zeichenkette mit Länge 100
+        logical :: flag               ! Boolean (.True. oder .False.)
+        type(haus) :: eigenheim       ! Derived Type
+    #+END_SRC
+
+    *Wichtig:* Aus Rückwartskompatibilität immer =implicit none= benutzen, damit Fortran nicht automatisch Variable mit entsprechenden Typen deklariert.
+
+*** Ein- und Ausgabe
+
+    Listen-formatierte Ausgabe kann mit:
+    #+BEGIN_SRC f90
+      print *, "Hallo Welt!"
+      write (*, *) "Hallo Welt!"
+      write (*, *) "Geben Sie einen ganze Zahl ein:"
+      read (*, *) i
+    #+END_SRC
+
+*** =derived types=
+    Einfacher =derived type=
+    #+BEGIN_SRC f90
+      ! Typ Definition
+      type :: haus_t
+         real :: length
+         real :: width
+         real :: height
+      end type haus_t
+      type(haus_t) :: eigenheim
+      ! Konstruktor
+      eigenheim = haus_t (10.0, 8.0, 12.0) ! Länge, Breite und Höhe
+      eigenheim = haus_t ( &               ! Beliebige Reihenfolge
+           width = 8.0, &                  ! mit explizitem Aufruf
+           height = 12.0, &                ! der Argumente
+           length = 10.0)
+      ! Oder eigener Konstruktor durch ein überladenes Interface von haus_t
+    #+END_SRC
+    Erweiterer =derived type= mit Vererbung
+    #+BEGIN_SRC f90
+        type, extends(haus_t) :: halle_t
+           character(len=20) :: fassadenfarbe = "grün"
+           logical :: brandschutz = .false.
+        end type halle_t
+        type(halle_t) :: gewerbe ! hat alle Eigenschaften von haus_t und hallo_t
+    #+END_SRC
+
+*** Weitere Attribute
+
+    - public ::
+    - private ::
+    - allocatable :: Speicher kann dynamisch mit =allocate= bereit gestellt werden
+    - pointer :: Zeigevariable (kann Variable mit Attribut =target= zeigen)
+    - target :: Zielvariable
+    - dimension :: Variable ist ein Array (max. 7 dimensional)
+    - intent :: im Kontext einer Prozeduren: =in=, =out= oder =inout=, legt fest wie Variable in der Prozedure benutzt werden kann
+    - optional ::
+    - save ::
+
+    #+BEGIN_SRC f90
+        integer, public :: test ! Ist in allen Programmteilen sichtbar
+        integer, private :: private_test ! Ist in anderen Modulen nicht sichtbar/außerhalb eines Types
+        integer, dimension(10) :: array ! 1-dim. Array mit zehn Elementen
+        integer, dimension(:), allocatable :: alloc_array ! allokierbare, 1-dim. Array
+        integer, pointer :: zeiger
+        integer, target :: ziel = 42
+        !
+        allocate (alloc_array(25)) ! allokiere 25 Elemente
+        zeiger => ziel
+        zeiger => test ! Gibt eine Fehlermeldung
+    #+END_SRC
 
 * Polymorphe Objekte und Type-gebundene Prozeduren
 
