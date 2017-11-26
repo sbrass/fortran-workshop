@@ -1,0 +1,144 @@
+#+startup: beamer
+
+#+LaTeX_CLASS: beamer
+#+LaTeX_CLASS_OPTIONS: [bigger]
+#+LaTeX_HEADER: \usetheme{default}
+#+LaTeX_HEADER: \usecolortheme[accent=green]{solarized}
+
+#+COLUMNS: %40ITEM %10BEAMER_env(Env) %9BEAMER_envargs(Env Args) %4BEAMER_col(Col) %10BEAMER_extra(Extra)
+
+* Fortran Workshop
+
+* Geschichte
+
+  - Entwicklung durch ???
+  - Standardisierung / Nomenklatur
+  - "Modernes" Fortran / Unterschied zu Fortran 77
+  - Kompiler (Intel, GCC, Nagfor, Portland, ???)
+
+* Entwicklung von Fortran
+
+** Formula Translator (Fortran)
+
+   - 1950er :: Entwicklung bei IBM um das Team von John Backus als Assembler-Alternative
+   - 1966 :: 1. Standardisierung durch ANSI als =FORTAN 66=
+   - 1978 :: 2. Standardiserung als =FORTRAN 77= / Durchbruch als Sprache
+   - 1991 :: Einführung von abstrakten Datentypen und /data hiding/, sowie Standardisierung der /array language/
+   - 1997 :: Fortran 95 als /high perfomance/ Sprache
+   - 2004 :: Fortran 2003 mit Objekt-orientierten Konzepten
+   - 2008 :: Fortran 2008 mit /submodules/ und /coarrays/
+
+** Eigenheiten
+
+   - einfache Syntax
+   - hohe Effizienz ohne durch Hardware-spezifischen Syntax abzulenken
+   - portable Software
+
+* Standardisierung
+
+  FORTAN wurde zum ersten Mal 1966  durch das ANSI Komitee als =FORTRAN 66= standardisiert. Es folgte 1978 der =FORTRAN 77= Standard, welche den Durchbruch der Sprache brachte.
+  FORTRAN zeichnet sich durch seinen sehr gut lesbaren Syntax und seinen effiziente Ausführung.
+
+  Mit =Fortran 90= wurden 1991 diverse Konzepte wie /data hiding/ und abstrakte Datentypen aus anderen Sprachen wie C/C++ oder die /Array Language/ in den Standard eingeführt.
+  Darüber hinaus wurde die /free source form/ eingeführt. =Fortran 90= wurde 1997 durch den  =Fortran 95= Standard abgelöst, welcher Schwerpunkte auf High Perfomance Computing setzt.
+
+  Der =Fortran 2003= Standard, erschienen in 2004, führt weitgehende, neue Konzepte:
+  - =derived types= :: =parametrized derived types=, Konstruktoren und Destruktoren (Finalizer) und Beschränkung der Zugriffbarkeit
+  - OOP :: Type-Erweiterung und Vererbung, Polymorphie, dynamische Type-Allokierung und Type-gebundene Prozeduren
+  - Datenmanipulierung :: allokiebare Komponenten, =deferred type parameters=, ...
+  - =procedure pointer= ::
+  - =C bindings= ::
+  usw.
+
+  (Fast) vollständige Unterstützung des =Fortran 2003= Standards nur durch GCC [[https://gcc.gnu.org/wiki/Fortran2003Status][siehe]]
+
+* Parallelisierung
+
+  - Parallelisierung mit OpenMP durch Direktiven
+  - Parallelisierung mit MPI (1/2/3.x)
+
+* Problemstellung
+
+  - Konzeptionelle Probleme
+
+* Syntax und Konzepte
+
+*** Datentypen
+
+**** Intrinsicher Datentypen
+
+     #+BEGIN_SRC f90
+         integer :: i                  ! Ganze Zahlen
+         real :: x                     ! Reelle Zahlen
+         complex :: z                  ! Komplexe Zahlen
+         character(len=100) :: str     ! Zeichenkette mit Länge 100
+         logical :: flag               ! Boolean (.True. oder .False.)
+         type(haus) :: eigenheim       ! Derived Type
+     #+END_SRC
+
+     *Wichtig:* Aus Rückwartskompatibilität immer =implicit none= benutzen, damit Fortran nicht automatisch Variable mit entsprechenden Typen deklariert.
+
+**** =derived types=
+     Einfacher =derived type=
+     #+BEGIN_SRC f90
+       ! Typ Definition
+       type :: haus_t
+          real :: length
+          real :: width
+          real :: height
+       end type haus_t
+       type(haus_t) :: eigenheim
+       ! Konstruktor
+       eigenheim = haus_t (10.0, 8.0, 12.0) ! Länge, Breite und Höhe
+       eigenheim = haus_t ( &               ! Beliebige Reihenfolge
+            width = 8.0, &                  ! mit explizitem Aufruf
+            height = 12.0, &                ! der Argumente
+            length = 10.0)
+       ! Oder eigener Konstruktor durch ein überladenes Interface von haus_t
+     #+END_SRC
+     Erweiterer =derived type= mit Vererbung
+     #+BEGIN_SRC f90
+         type, extends(haus_t) :: halle_t
+            character(len=20) :: fassadenfarbe = "grün"
+            logical :: brandschutz = .false.
+         end type halle_t
+         type(halle_t) :: gewerbe ! hat alle Eigenschaften von haus_t und hallo_t
+     #+END_SRC
+
+**** Weitere Attribute
+
+     - public ::
+     - private ::
+     - allocatable :: Speicher kann dynamisch mit =allocate= bereit gestellt werden
+     - pointer :: Zeigevariable (kann Variable mit Attribut =target= zeigen)
+     - target :: Zielvariable
+     - dimension :: Variable ist ein Array (max. 7 dimensional)
+     - intent :: im Kontext einer Prozeduren: =in=, =out= oder =inout=, legt fest wie Variable in der Prozedure benutzt werden kann
+     - optional ::
+     - save ::
+
+     #+BEGIN_SRC f90
+         integer, public :: test ! Ist in allen Programmteilen sichtbar
+         integer, private :: private_test ! Ist in anderen Modulen nicht sichtbar/außerhalb eines Types
+         integer, dimension(10) :: array ! 1-dim. Array mit zehn Elementen
+         integer, dimension(:), allocatable :: alloc_array ! allokierbare, 1-dim. Array
+         integer, pointer :: zeiger
+         integer, target :: ziel = 42
+         !
+         allocate (alloc_array(25)) ! allokiere 25 Elemente
+         zeiger => ziel
+         zeiger => test ! Gibt eine Fehlermeldung
+     #+END_SRC
+
+* Polymorphe Objekte und Type-gebundene Prozeduren
+
+  #+BEGIN_SRC f90
+      class(haus_t), allocatable :: objekt ! Polymorphes Objekt auf Basis von haus_t
+      allocate (halle_t :: objekt) ! allokiere vererbten Typ halle_t von haus_t
+      select type (object) ! Typ-sicherer Aufruf
+      type is (halle_t)
+         object%brandschutz = .true.
+      class is (haus_t)
+         object%length = 100.0
+      end select
+  #+END_SRC
