@@ -1,4 +1,7 @@
 #!/usr/bin/env python
 
-env = Environment (FORTRAN="gfortran")
-example = env.Program ("example", "example.f08")
+env = Environment (F08="gfortran",
+                   F08FLAGS="-fbacktrace -Wall -g")
+example = []
+for i in range(1, 4):
+    example += env.Program ("example{}".format(i), "example{}.f08".format(i))
