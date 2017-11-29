@@ -45,10 +45,20 @@
 * Begrüßung und Vorbereitung
 
 ** Tutoren
+   :PROPERTIES:
+   :EXPORT_OPTIONS: width=0.6textwidth
+   :END:
 
    - Simon Braß, Doktorand in der AG Theoretische Teilchenphysik
    - Jessica Reuter, Lehramt für Mathematik und Informatik
 
+*** Fragen? Probleme?                                        :B_alertblock:
+    :PROPERTIES:
+    :BEAMER_env: alertblock
+    :END:
+      #+CAPTION: Quelle: [[https://xkcd.com]]
+      #+ATTR_LATEX: :width 0.6\textwidth
+      [[./images/complex_conjugate.png]]
 ** Ablauf                                                    :B_exampleblock:
    :PROPERTIES:
    :BEAMER_env: exampleblock
@@ -75,6 +85,7 @@
 
 **** 2. Tag: OOP
 
+     - =derived types=
      - Zeiger und Prozeduren-Zeiger
      - =allocatables=
      - Polymorphie und Vererbung
@@ -128,7 +139,9 @@
    - Entwicklung für Lochkarten-Computer *fixed form* für =FORTAN 66/77=
    - Seit =Fortran 90= *free form* als Standard
    - vergleichbare Effizienz zu Assembler-Code
-
+     #+CAPTION: Lochkarte ([[http://newsadultg3.over-blog.com/2017/05/how-to-write-a-factorial-program-in-fortran.html][Quelle]])
+     #+ATTR_LATEX: :width 0.7\textwidth
+     [[./images/punchcard.jpg]]
 ** Beispiele
 
 *** /fixed form/                                             :B_exampleblock:
@@ -167,16 +180,16 @@
 
 *** Neuerungen in =Fortran 2003=
 
-    - =derived types= :: =parametrized derived types=, Konstruktoren und Destruktoren (Finalizer) und Beschränkung der Zugriffbarkeit
-    - OOP :: Typ-Erweiterung und Vererbung, Polymorphie, dynamische Typ-Allokierung und Typ-gebundene Prozeduren
-    - Datenmanipulierung :: allokiebare Komponenten, =deferred type parameters=, ...
-    - =procedure pointer= ::
-    - =C bindings= ::
+    - =parametrized derived types=, Konstruktoren, Destruktoren und eingeschränkte Zugriffe
+    - Polymorphie, Typ-Erweiterung, Vererbung, dynamische Typ-Allokierung und Typ-gebundene Prozeduren
+    - allokierbare Komponenten, =deferred type parameters=
+    - Prozeduren-Zeiger
+    - =C bindings=
 
 *** Gfortran
 
     - (fast) vollständige Unterstützung durch Gfortran =7.2.0= [[https://gcc.gnu.org/wiki/Fortran2003Status][siehe]]
-    - größte Kompiler-Unterstützung an sich (ifort/NAGfor/Gfortran): =Fortran 2003=
+    - größte Kompiler-Unterstützung an sich (ifort/NAGfor/Gfortran)
 
 ** Parallelisierung
 
@@ -204,7 +217,7 @@
     - Syntax nahe an Matrix- und Vektorproblemen
     - strenge Speicherverwaltung
     - Polymorphie mit Typ-Sicherheit
-    - standardmäßig =by-reference=
+    - =by-reference= Argumentübergabe
 
 *** Nachteile von =Fortran=
 
@@ -295,7 +308,7 @@
     #+BEGIN_SRC f90
         integer :: i                  ! Ganze Zahlen
         real :: x                     ! Reelle Zahlen
-        complex :: z                  ! Komplexe Zahlen
+        complex :: z                  ! Komplexe Zahlen (5., 2.): 5+2i
         character(len=100) :: str     ! Zeichenkette mit Länge 100
         logical :: flag               ! Boolean (.True. oder .False.)
         type(haus) :: eigenheim       ! Derived Type
@@ -308,6 +321,11 @@
 
     *Wichtig:* Aus Rückwartskompatibilität immer =implicit none= benutzen, damit Fortran nicht automatisch Variablen mit entsprechenden Typen deklariert.
 
+*** Kommentare                                                 :B_alertblock:
+    :PROPERTIES:
+    :BEAMER_env: alertblock
+    :END:
+    Kommentare im Quellcode können mit =!= erstellt werden. Jeder Ausdruck nach =!= wird vom Kompiler ignoriert.
 ** Ein- und Ausgabe
 
 *** Listen-formatierte Ein-/Ausgabe                          :B_exampleblock:
@@ -316,10 +334,10 @@
     :END:
 
     #+BEGIN_SRC f90
-      print *, "Hallo Welt!"
+      print *, "Hallo Welt!" ! Schreibt "Hallo Welt!" in die Standardausgabe
       write (*, *) "Hallo Welt!"
       write (*, *) "Geben Sie einen ganze Zahl ein:"
-      read (*, *) i
+      read (*, *) i ! Liest einen Wert von der Standardausgabe ein
       write (u, *) "Ich werde in die unit = ", u, " geschrieben."
     #+END_SRC
 
@@ -328,12 +346,12 @@
     :BEAMER_env: exampleblock
     :END:
 
-    - andere /unit/ als =*= möglich
+    - andere /unit/ als =*= (Standardein-/ausgabe) möglich
     - Standardausgabe-, Standardfehlerausgabe-/unit/ in =iso_fortran_env=
 
     #+BEGIN_SRC f90
         use iso_fortran_env, only: error_unit
-        ! Schreibe Fehlermeldung auf stderr
+        ! Schreibt Fehlermeldung auf stderr
         write (error_unit, *) "Fehlermeldung"
 
     #+END_SRC
@@ -359,7 +377,7 @@
     :END:
 
     #+NAME: example1
-    #+BEGIN_SRC f90 :export code :tangle examples/example1.f08
+    #+BEGIN_SRC f90 :export none
       program example1
         implicit none
         integer :: i
@@ -388,7 +406,7 @@
 ** Operatoren und mathematische Funktionen
 
    #+NAME: example3
-   #+BEGIN_SRC f90 :export code
+   #+BEGIN_SRC f90 :export none
      print *, "a + b = ", a + b      ! Addition
      print *, "a - b = ", a - b      ! Subtraktion
      print *, "a * b = ", a * b      ! Multiplikation
@@ -398,6 +416,37 @@
    - alle mathematischen Operatoren und Funktionen für komplexe Zahlen
    - Vielzahl von mathematischen Standardfunktionen: =mod=, =sin=, =log=,...
    - logische Operatoren: =.and.=, =.or.=, =.not.=,...
+   - vergleichende Operatoren: ===, =/==, =>=, =<=, =>==, =<==
+   #+NAME: example3
+   #+BEGIN_SRC f90 :export none
+       print *, ".true. .and. .false.", .true. .and. .false.
+       print *, ".true. .or. .true.", .true. .or. .true.
+       print *, "(a - b) /= (a + b)", (a - b) /= (a + b)
+   #+END_SRC
+
+** Aufgabe
+
+   - Deklarieren Sie mit allen Datentypen Variablen.
+   - Definieren Sie für alle Variablen Werte.
+   - Geben Sie alle Variablen auf der Standardausgabe aus.
+   - Wenden Sie (ausgewählte) mathematische Operatoren auf Variablen gleichen und verschieden Typs an.
+
+*** Grundgerüst                                              :B_exampleblock:
+    :PROPERTIES:
+    :BEAMER_env: exampleblock
+    :END:
+    #+BEGIN_SRC f90
+      program aufgabe1
+        implicit none
+        integer :: zahl
+        ! ...
+        zahl = 42
+        ! ...
+        print *, "zahl = ", zahl
+        ! ...
+        print *, "zahl + 1. = ", zahl + 1.
+      end program aufgabe1
+    #+END_SRC
 
 ** Arrays
 
@@ -423,39 +472,190 @@
    #+END_SRC
 
 ** =if-clause= und Schleifen
+   :PROPERTIES:
+   :BEAMER_opt: allowframebreaks
+   :END:
    - =if-clause= prüft logischen Ausdruck
    - logischen Ausdruck aus logischen Operatoren und Variablen
-   - select case
-   - do / do while / cycle / exit
+   - =select case=
+   - =do= / =do while= / =cycle= / =exit=
    #+NAME: example4
    #+BEGIN_SRC f90 :export none
-       if (a == b) then ! /= für ungleich
-          print *, "a == b"
-       else if (a >= b)  then ! > für echt größer
-          print *, "a >= b"
-       else
-          print *, "a steht in keiner Relation zu b"
-       end if
+     if (a == b) then ! /= für ungleich
+        print *, "a == b"
+     else if (a >= b)  then ! >, <, <=
+        print *, "a >= b"
+     else
+        print *, "a steht in keiner Relation zu b"
+     end if
    #+END_SRC
+
+   #+NAME: example5
+   #+BEGIN_SRC f90 :export none
+     do i = 1, 10 ! Drittes Argument gibt Iterationsvorschrift
+        print *, "i = ", i
+     end do
+     do i = 10, 1, -1
+        print *, "i = ", i
+     end do
+   #+END_SRC
+
+   #+NAME: example6
+   #+BEGIN_SRC f90 :export none
+     do while (a > b)
+        b = b + 2
+        print *, "b = b + 2 = ", b
+     end do
+   #+END_SRC
+
+   #+BEGIN_SRC f90 :export
+       do ! "Endlos-Schleife"
+          ! Tue etwas
+          if (bedingung1) then
+             cycle ! Wiederhole Schleife sofort
+          else if (bedingung2) then
+             exit ! Beende Schleife sofort
+          else
+             ! Tue etwas ganz anderes
+          end if
+       end do
+   #+END_SRC
+
+   #+BEGIN_SRC f90
+    ! select case als Ersatz für verschachtelte if-clauses
+    select case (test)
+    case(10)
+       print *, 10
+    case(:9)
+       print *, "<10"
+    case default
+       print *, "Was auch immer..."
+    end select
+
+   #+END_SRC
+
+** Aufgabe
+   - Deklarieren Sie eindimensionale Arrays von verschiedenen Datentypen.
+   - Testen Sie welche mathematischen Operatoren erlaubt sind:
+     - Skalar und Array
+     - Array und Array
+   - Deklarieren, (de)allokieren Sie Arrays.
+   - Nutzen Sie eine Schleife um einen Array elementeweise auszugeben.
+
+*** Hinweis
+    - Testen Sie, ob ein =allocatable= Objekt allokiert ist, mit =allocated(...)=.
+    - Probieren Sie ein =allocate-on-assignment= aus.
+    - Greifen Sie auf ein Element mit Index =i= mit =iarray(i)= zu.
 
 ** Funktionen
 
-   - pure
-   - elemental
+   Eine Funktion liefert einen Rückgabe-Wert aus verschiedenen Argumenten.
+   Ähnlich einer Abbildung aus der Mathematik.
+   #+BEGIN_SRC f90 :export none
+     ! Funktion vom Typ integer
+     integer function add (a, b) result (c)
+       integer, intent(in) :: a
+       integer, intent(in) :: b
+       c = a + b
+     end function add
+     ! ...
+     print *, "2 + 3 = ", add(2, 3)
+   #+END_SRC
+   - =pure= Funktionen sind ohne Nebeneffekte wie Ein-/Ausgabe
+   - =elemental= Funktionen werden elementweise auf Arrays angewant, setzt =pure= voraus.
+   - Bei Definition ohne =result= wird automatisch eine Rückgabe-Variable mit dem Namen und des Types der Funktion angelegt.
 
 ** Subroutinen
+   :PROPERTIES:
+   :BEAMER_opt: allowframebreaks
+   :END:
 
-   - contains
+   Subroutinen können mehrere Argumente zurückgeben.
+   #+NAME: example7
+   #+BEGIN_SRC f90 :export none
+     subroutine volume_and_length (a, b, volume, circ)
+       real, dimension(3), intent(in) :: a
+       real, dimension(3), intent(in) :: b
+       real, intent(out) :: volume
+       real, intent(out) :: circ
+       real, dimension(3) :: c
+       call vector_product (a, b, c)
+       volume = sqrt(dot_product(c, c))
+       circ = 2*(sqrt(dot_product(a, a)) + sqrt(dot_product(b, b)))
+     contains
+       subroutine vector_product (a, b, c)
+         real, dimension(3), intent(in) :: a, b
+         real, dimension(3), intent(out) :: c
+         c = [(a(1) * b(2) - a(2) * b(1)), &
+              (a(1) * b(3) - a(3) * b(1)), &
+              (a(2) * b(3) - a(3) * b(2))]
+       end subroutine vector_product
+     end subroutine volume_and_length
+   #+END_SRC
+   - Funktionen und Subroutinen können andere Prozeduren über =contains= enthalten.
+   - =intent=-Angabe geben Veränderlichkeit von Argumenten an: =in=, =out=, =inout=
+   - =optional=-Argumente können, müssen aber nicht übergeben werden.
+   #+BEGIN_SRC f90
+     character(:), allocatable, optional :: text
+     if (present (text)) print *, text
+   #+END_SRC
+   - Übergabe der Argumente in *Reihenfolge*
+   - Übergabe der Argumente über Name des Arguments: =a=array, b=array2=
+   - =intent(in/inout)=-Arrays können /assumed-shape/ haben
+   #+BEGIN_SRC f90
+     subroutine map_index (index1, index2)
+       integer, dimension(:), intent(in) :: index1
+       integer, dimension(size(index)), intent(out) :: index2
+     end subroutine map_index
+     ! im Programm
+     integer, dimension(5) :: i1, i2
+     call map_index (i1, i2)
+   #+END_SRC
 
-** Argumente
+*** Problem                                                    :B_alertblock:
+    :PROPERTIES:
+    :BEAMER_env: alertblock
+    :END:
+    Wie bringt man Struktur und logische Ordnung in die Prozeduren und das Hauptprogram?
 
-   - intent
-   - optional
-   - =assumed length/size=
+** Modul
+   :PROPERTIES:
+   :BEAMER_opt: allowframebreaks
+   :END:
+
+   - Strukturierung und logische Ordnung
+   - Modularisierung
+   - Zugriffsrechte
+   - Schnittstellen und Definitionen
+   - Wiederverwendbarkeit
+   #+BEGIN_SRC f90
+     module vektoren
+       implicit none
+       private ! Immer alles auf private setzen
+       public :: vector3_product ! explizit exportieren
+     contains
+       subroutine vector3_product (a, b, c)
+         real, dimension(3), intent(in) :: a, b
+         real, dimension(3), intent(out) :: c
+         c = [(a(1) * b(2) - a(2) * b(1)), &
+              (a(1) * b(3) - a(3) * b(1)), &
+              (a(2) * b(3) - a(3) * b(2))]
+       end subroutine vector3_product
+     end module vektoren
+   #+END_SRC
+   - Modulkopf
+   - =use=, =use ::, only: name => module_name=
+   - =contains=
+   - =private=, =public=
 
 ** Zeichenketten
    - =allocatable characters=
    - =assumed length=
+
+** Aufgabe
+
+   Finden Sie alle Cluster
+
 ** =derived types=
    Einfacher =derived type=
    #+BEGIN_SRC f90
@@ -496,18 +696,17 @@
     - save ::
 
     #+BEGIN_SRC f90
-        integer, public :: test ! Ist in allen Programmteilen sichtbar
-        integer, private :: private_test ! Ist in anderen Modulen nicht sichtbar/außerhalb eines Types
-        integer, dimension(10) :: array ! 1-dim. Array mit zehn Elementen
-        integer, dimension(:), allocatable :: alloc_array ! allokierbare, 1-dim. Array
-        integer, pointer :: zeiger
-        integer, target :: ziel = 42
-        !
-        allocate (alloc_array(25)) ! allokiere 25 Elemente
-        zeiger => ziel
-        zeiger => test ! Gibt eine Fehlermeldung
-    #+END_SRC
-
+    integer, public :: test ! Ist in allen Programmteilen sichtbar
+    integer, private :: private_test ! Ist in anderen Modulen nicht sichtbar/außerhalb eines Types
+    integer, dimension(10) :: array ! 1-dim. Array mit zehn Elementen
+    integer, dimension(:), allocatable :: alloc_array ! allokierbare, 1-dim. Array
+    integer, pointer :: zeiger
+    integer, target :: ziel = 42
+    !
+    allocate (alloc_array(25)) ! allokiere 25 Elemente
+    zeiger => ziel
+    zeiger => test ! Gibt eine Fehlermeldung
+    #+END_SR
 * Polymorphe Objekte und Type-gebundene Prozeduren
 
   #+BEGIN_SRC f90
@@ -559,4 +758,36 @@
        print *, "b = ", b
        <<example3>>
      end program example3
+   #+END_SRC
+
+** Programm: Example 4-6
+
+   #+BEGIN_SRC f90 :export code :noweb yes :tangle examples/example46.f08
+     program example46
+       implicit none
+       integer :: a = 5, b = -1
+       integer :: i
+       print *, "*** Beispiel 4-6 ***"
+       print *, "a = ", a
+       print *, "b = ", b
+       <<example4>>
+       <<example5>>
+       <<example6>>
+     end program example46
+   #+END_SRC
+
+** Programm: Example 7
+
+   #+BEGIN_SRC f90 :export code :noweb yes :tangle examples/example7.f08
+     program example7
+       implicit none
+       real, dimension(3) :: a, b
+       real :: vol, circ
+       print *, "*** Beispiel 7 ***"
+       a = [1., 2., 3.]; b = [-1., 2., 1.]
+       call volume_and_length (a, b, vol, circ)
+       print *, "a = ", a, "b = ", b
+       print *, "vol = ", vol, "circ = ", circ
+     end program example7
+     <<example7>>
    #+END_SRC
