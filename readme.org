@@ -3,9 +3,12 @@
 #+OPTIONS: broken-links:nil c:nil creator:nil d:(not "LOGBOOK") date:t e:t
 #+OPTIONS: email:nil f:t inline:t num:t p:nil pri:nil prop:nil stat:t tags:t
 #+OPTIONS: tasks:t tex:t timestamp:t title:t toc:t todo:t |:t
-#+DATE: <2017-11-28 Di>
+#+TITLE: Fortran-Workshop
+#+SUBTITLE: Workshopreihe Programmiersprachen
+#+AUTHOR: \href{emailto:brass@physik.uni-siegen.de}{Simon Braß}, Jessica Reuter
+#+DATE: \today{}
 #+EMAIL: brass@physik.uni-siegen.de
-#+LANGUAGE: de
+#+LANGUAGE: de-de
 #+SELECT_TAGS: export
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 25.3.1 (Org mode 9.1.3)
@@ -13,34 +16,19 @@
 #+OPTIONS: H:2
 #+LATEX_CLASS: beamer
 #+LaTeX_CLASS_OPTIONS: [smaller,compress,slidestop]
+#+LATEX_HEADER: \usepackage[AUTO]{babel}
 #+COLUMNS: %45ITEM %10BEAMER_env(Env) %10BEAMER_act(Act) %4BEAMER_col(Col) %8BEAMER_opt(Opt)
 #+BEAMER_THEME: Pittsburgh
 #+BEAMER_COLOR_THEME: solarized [accent=green]
 #+BEAMER_FONT_THEME:
 #+BEAMER_INNER_THEME:
 #+BEAMER_OUTER_THEME:
+#+BEAMER_HEADER: \institute[Uni Siegen]{Theoretische Physik I\\\url{http://www.tp.nt.uni-siegen.de/+brass/}}
+#+BEAMER_HEADER: \titlegraphic{\includegraphics[height=1cm]{images/unilogo.pdf}}
 #+BEAMER_HEADER: \usenavigationsymbolstemplate{}
 
 #+LATEX: \setminted{fontsize=\footnotesize,bgcolor=white}
 #+LATEX: \usemintedstyle{autumn}
-
-* Fortran Workshop
-
-** Übersicht
-
-   - Einführung 20 Minuten
-   - Vorbereitung (Installation Kompiler) 5 Minuten
-   - Geschichte 15 Minuten
-   - Syntax I (intrinsische Datentypen, I/O und Module) 10 Minuten
-   - Übung 10 Minuten
-   - Besprechung Übung 10 Minuten
-   - Syntax II (=allocatable= und /array language/) 20 Minuten
-   - Übung 20 Minuten
-   - Besprechung Übung 20 Minuten
-   - 15 Minuten Pause
-   - Syntax III (=derived types= und =pointer=) 30 Minuten
-   - Übung 30 Minuten
-   - Besprechung Übung 30 Minuten
 
 * Begrüßung und Vorbereitung
 
@@ -56,9 +44,9 @@
     :PROPERTIES:
     :BEAMER_env: alertblock
     :END:
-      #+CAPTION: Quelle: [[https://xkcd.com]]
-      #+ATTR_LATEX: :width 0.6\textwidth
-      [[./images/complex_conjugate.png]]
+    #+CAPTION: Quelle: [[https://xkcd.com]]
+    #+ATTR_LATEX: :width 0.6\textwidth
+    [[./images/complex_conjugate.png]]
 ** Ablauf                                                    :B_exampleblock:
    :PROPERTIES:
    :BEAMER_env: exampleblock
@@ -130,18 +118,19 @@
     - 1991 :: Einführung von abstrakten Datentypen und /data hiding/, sowie Standardisierung der /array language/
     - 1997 :: Fortran 95 als /high perfomance/ Sprache
     - 2004 :: Fortran 2003 mit Objekt-orientierten Konzepten
-    - 2008 :: Fortran 2008 mit /submodules/ und /coarrays/
-    - 2012-heute :: Fortran 2015 ...
+    - 2010 :: Fortran 2008 mit /submodules/ und /coarrays/
+    - 2012-heute :: Fortran 2018 ...
 
 ** Philosophie von Fortran
 
-   - einfach-lesbare Syntax
-   - Entwicklung für Lochkarten-Computer *fixed form* für =FORTAN 66/77=
-   - Seit =Fortran 90= *free form* als Standard
+   - einfach-lesbare und verständliche Syntax
    - vergleichbare Effizienz zu Assembler-Code
-     #+CAPTION: Lochkarte ([[http://newsadultg3.over-blog.com/2017/05/how-to-write-a-factorial-program-in-fortran.html][Quelle]])
-     #+ATTR_LATEX: :width 0.7\textwidth
-     [[./images/punchcard.jpg]]
+   - Mathematik-nahe Umsetzung FORmula TRANnslator
+   - *fixed form* Syntax für Lochkarten-Computer in =FORTAN 66/77=
+   - *free form* seit =Fortran 90= als Standard
+   #+CAPTION: Lochkarte ([[http://newsadultg3.over-blog.com/2017/05/how-to-write-a-factorial-program-in-fortran.html][Quelle]])
+   #+ATTR_LATEX: :width 0.7\textwidth
+   [[./images/punchcard.jpg]]
 ** Beispiele
 
 *** /fixed form/                                             :B_exampleblock:
@@ -188,7 +177,7 @@
 
 *** Gfortran
 
-    - (fast) vollständige Unterstützung durch Gfortran =7.2.0= [[https://gcc.gnu.org/wiki/Fortran2003Status][siehe]]
+    - (fast) vollständige Unterstützung durch Gfortran =7.2.0= [[https://gcc.gnu.org/wiki/Fortran2003Status][(GCC Wiki)]]
     - größte Kompiler-Unterstützung an sich (ifort/NAGfor/Gfortran)
 
 ** Parallelisierung
@@ -225,8 +214,7 @@
     - keine Templates (=C++=)
     - langsame Zeiger
 
-** Hauptprogramm und Module
-
+** Aufteilung und Verschachtelung
 *** Scope
 
     Definition eines Scopes durch Strukturen
@@ -298,6 +286,34 @@
     - Kein Zugriff von =beispiel_module= auf =program=
     - Zugriff von =contained procedure= in =program= auf =program=
 
+** Besondere Zeichen
+
+*** Kommentare                                                 :B_alertblock:
+    :PROPERTIES:
+    :BEAMER_env: alertblock
+    :END:
+    Kommentare im Quellcode können mit =!= erstellt werden. Jeder Ausdruck nach =!= wird vom Kompiler ignoriert.
+
+*** Zeilenumbruch                                              :B_alertblock:
+    :PROPERTIES:
+    :BEAMER_env: alertblock
+    :END:
+    Überlange Zeilen (=>=127= Zeichen) werden mit =&= gebrochen.
+
+*** Statement-Ende                                             :B_alertblock:
+    :PROPERTIES:
+    :BEAMER_env: alertblock
+    :END:
+    Mit einem =;= kann ein Statement-Ende gesetzt werden so, dass mehrere Statements in eine Zeile geschrieben werden können.
+
+    #+BEGIN_SRC f90
+        ! Ich bin ein Kommenatar.
+        real :: x = 1.5 ! Ich bin auch ein Kommentar.
+        character(len=100) :: str = "Hallo Welt! Ich bin eine viel zu lange &
+             & Zeichenkette, denn ich passe nicht in eine Zeile."
+        i = 42; b = 10; c = (0.5, 4.5)
+    #+END_SRC
+
 ** Datentypen
 
 *** Intrinsiche Datentypen                                   :B_exampleblock:
@@ -321,11 +337,6 @@
 
     *Wichtig:* Aus Rückwartskompatibilität immer =implicit none= benutzen, damit Fortran nicht automatisch Variablen mit entsprechenden Typen deklariert.
 
-*** Kommentare                                                 :B_alertblock:
-    :PROPERTIES:
-    :BEAMER_env: alertblock
-    :END:
-    Kommentare im Quellcode können mit =!= erstellt werden. Jeder Ausdruck nach =!= wird vom Kompiler ignoriert.
 ** Ein- und Ausgabe
 
 *** Listen-formatierte Ein-/Ausgabe                          :B_exampleblock:
@@ -334,11 +345,11 @@
     :END:
 
     #+BEGIN_SRC f90
-      print *, "Hallo Welt!" ! Schreibt "Hallo Welt!" in die Standardausgabe
-      write (*, *) "Hallo Welt!"
-      write (*, *) "Geben Sie einen ganze Zahl ein:"
-      read (*, *) i ! Liest einen Wert von der Standardausgabe ein
-      write (u, *) "Ich werde in die unit = ", u, " geschrieben."
+        print *, "Hallo Welt!" ! Schreibt "Hallo Welt!" in die Standardausgabe
+        write (*, *) "Hallo Welt!"
+        write (*, *) "Geben Sie einen ganze Zahl ein:"
+        read (*, *) i ! Liest einen Wert von der Standardeingabe ein
+        write (u, *) "Ich werde in die unit = ", u, " geschrieben."
     #+END_SRC
 
 *** =iso_fortran_env=                                        :B_exampleblock:
@@ -363,8 +374,8 @@
      #+BEGIN_SRC sh
        gfortran \
            -Wall \ # alle Warnungen
-           -g \    # Debug-Symbole
-           -c example1.f08 -o example1.o
+       -g \    # Debug-Symbole
+       -c example1.f08 -o example1.o
      #+END_SRC
    - Linken zu einem ausführbaren Programm
      #+BEGIN_SRC sh
@@ -395,7 +406,7 @@
 
     #+BEGIN_SRC sh
       gfortran -o example.o \
-                -c example.f08
+               -c example.f08
       gfortran -o example example.o
       ./example
       ,*** Beispiel 1 ***
@@ -403,15 +414,51 @@
       i =           42
     #+END_SRC
 
+
+** Aufgabe
+
+   - Schreiben Sie das Programm: Beispiel 1 ab und kompilieren Sie es.
+   - Was ist der Unterschied zwischen =example.o= und =example.f08=?
+   - Was geschieht beim sog. Linken mit =example.o=?
+
+*** =objdump=                                                :B_exampleblock:
+    :PROPERTIES:
+    :BEAMER_env: exampleblock
+    :END:
+
+    Benutzen Sie =objdump -d example1.o=, um sich den Machinen-Code anzusehen.
+    Versuchen Sie das Beispiel /ohne/ die =print=-Anweisungen.
+
+** Variablen-Eigenschaften
+
+   Alle Variablen können weitere Eigenschaften besitzen:
+   - bei =parameter= kann sich die Variable nicht mehr ändern,
+   - durch =dimension= wird eine Variable zu einem Variablen-Array,
+   - durch =allocatable= kann der Speicher /dynamisch/ angefordert werden,
+   - durch =pointer= kann mit einer Variable auf eine andere Variable mit =target= gezeigt werden.
+
+*** Achtung                                                    :B_alertblock:
+    :PROPERTIES:
+    :BEAMER_env: alertblock
+    :END:
+
+    Eigenschaften können sich gegenseitig ausschließen!
+    #+BEGIN_SRC f90
+        integer, pointer, target :: i1 ! Verboten
+        integer, allocatable, pointer :: i2 ! Verboten
+        integer, parameter, pointer :: i3 ! Verboten
+        ! ...
+    #+END_SRC
+
 ** Operatoren und mathematische Funktionen
 
    #+NAME: example3
    #+BEGIN_SRC f90 :export none
-     print *, "a + b = ", a + b      ! Addition
-     print *, "a - b = ", a - b      ! Subtraktion
-     print *, "a * b = ", a * b      ! Multiplikation
-     print *, "a / b = ", a / b      ! Division
-     print *, "a ** b = ", a ** b    ! Potenz
+       print *, "a + b = ", a + b      ! Addition
+       print *, "a - b = ", a - b      ! Subtraktion
+       print *, "a * b = ", a * b      ! Multiplikation
+       print *, "a / b = ", a / b      ! Division
+       print *, "a ** b = ", a ** b    ! Potenz
    #+END_SRC
    - alle mathematischen Operatoren und Funktionen für komplexe Zahlen
    - Vielzahl von mathematischen Standardfunktionen: =mod=, =sin=, =log=,...
@@ -449,27 +496,89 @@
     #+END_SRC
 
 ** Arrays
+   :PROPERTIES:
+   :BEAMER_opt: allowframebreaks
+   :END:
 
    - von allen Datentypen (auch =derived types=)
    - maximal 7-dimensionaler Array
-   - Konstruktor durch =[...]=
+   - 1-dm. Konstruktor durch =[...]=
    - allokierbarer Array mit =allocatable=
 
    #+NAME: example2
    #+BEGIN_SRC f90 :exports code
-     integer, dimension(10) :: iarray
-     integer, dimension(10, 2) :: iarray2
-     integer, dimension(:), allocatable :: iarray3
-     ! Maximal 7-dim. Array
-     iarray = 10                     ! alle Element auf 10 setzen
-     iarray = [(i,i=1, 10)]           ! Konstruktor
-     iarray = [1, 1, 2, 3, 5, 8, 13, 21, 43, 64]
-     iarray2(:, 1) = [(i, i = 1, 10)]
-     iarray2(:, 2) = [(i**2, i = 1, 10)]
-     iarray3 = [1, 2]                ! Allocate on assignment
-     deallocate (iarray3)
-     allocate (iarray3(10), source = 1)
+       integer, dimension(10) :: iarray
+       integer, dimension(10, 2) :: iarray2
+       integer, dimension(:), allocatable :: iarray3
+       ! Maximal 7-dim. Array
+       iarray = 10                     ! alle Element auf 10 setzen
+       iarray = [(i,i=1, 10)]           ! Konstruktor
+       iarray = [1, 1, 2, 3, 5, 8, 13, 21, 43, 64]
+       iarray2(:, 1) = [(i, i = 1, 10)]
+       iarray2(:, 2) = [(i**2, i = 1, 10)]
+       iarray3 = [1, 2]                ! Allocate on assignment
+       deallocate (iarray3)
+       allocate (iarray3(10), source = 1)
    #+END_SRC
+*** Index                                                    :B_exampleblock:
+    :PROPERTIES:
+    :BEAMER_env: exampleblock
+    :END:
+
+    - Zugriff auf Elemente eines Array durch Index
+    - Einzel-Element oder Unter-Array
+    - Zugriff auf /slice/ durch =:=
+    - Index-Variablen vom Typ =integer=
+    #+BEGIN_SRC f90
+      integer, dimension(10, 3) :: 2d_array
+      ! ...
+      print *, 2d_array(5, 2) ! Element
+      print *, 2d_array(1:5, 1) ! Unterarray
+      print *, 2d_array(5, :) ! Slice im höchsten Index
+      print *, 2d_array(2 * i, i) ! i = {1, 2, 3}
+    #+END_SRC
+
+*** Array-Speicher                                             :B_alertblock:
+    :PROPERTIES:
+    :BEAMER_env: alertblock
+    :END:
+
+   - Spalten-orientierter Array
+   - Anordnung von Array-Speicher nach niedrigster zur höchster Dimension
+   - Effizienz bei Schleifen über mehr-dim. Arrays
+
+*** Schlechtes Beispiel                                      :B_exampleblock:
+    :PROPERTIES:
+    :BEAMER_env: exampleblock
+    :END:
+    #+BEGIN_SRC f90
+        integer, dimension(100, 25) :: a
+        integer :: i, j
+        do i = 1, 100 ! linker, innerer Index
+           do j = 1, 25 ! rechter, äußerer Index
+              print *, a(i)
+           end do
+        end do
+    #+END_SRC
+
+    Die Schleife über den Index =j= läuft über Spalten und der Index =i= über die Reihen.
+    Daher muss im obigen Beispiel sehr viel im Speicher hin und her gesprungen werden.
+
+*** Gutes Beispiel                                           :B_exampleblock:
+    :PROPERTIES:
+    :BEAMER_env: exampleblock
+    :END:
+    #+BEGIN_SRC f90
+        integer, dimension(100, 25) :: a
+        integer :: i, j
+        do j = 1, 25 ! rechter, äußerer Index
+           do i = 1, 100 ! linker, innerer Index
+              print *, a(i)
+           end do
+        end do
+    #+END_SRC
+    Der Speicher wird in der vorgegebenen Reihenfolge abgelaufen so, dass der Array effizient ausgelesen wird.
+    Im Beispiel macht das natürlich keinen Unterschied wegen des =print= auf die Standardausgabe!
 
 ** =if-clause= und Schleifen
    :PROPERTIES:
@@ -481,31 +590,31 @@
    - =do= / =do while= / =cycle= / =exit=
    #+NAME: example4
    #+BEGIN_SRC f90 :export none
-     if (a == b) then ! /= für ungleich
-        print *, "a == b"
-     else if (a >= b)  then ! >, <, <=
-        print *, "a >= b"
-     else
-        print *, "a steht in keiner Relation zu b"
-     end if
+       if (a == b) then ! /= für ungleich
+          print *, "a == b"
+       else if (a >= b)  then ! >, <, <=
+          print *, "a >= b"
+       else
+          print *, "a steht in keiner Relation zu b"
+       end if
    #+END_SRC
 
    #+NAME: example5
    #+BEGIN_SRC f90 :export none
-     do i = 1, 10 ! Drittes Argument gibt Iterationsvorschrift
-        print *, "i = ", i
-     end do
-     do i = 10, 1, -1
-        print *, "i = ", i
-     end do
+       do i = 1, 10 ! Drittes Argument gibt Iterationsvorschrift
+          print *, "i = ", i
+       end do
+       do i = 10, 1, -1
+          print *, "i = ", i
+       end do
    #+END_SRC
 
    #+NAME: example6
    #+BEGIN_SRC f90 :export none
-     do while (a > b)
-        b = b + 2
-        print *, "b = b + 2 = ", b
-     end do
+       do while (a > b)
+          b = b + 2
+          print *, "b = b + 2 = ", b
+       end do
    #+END_SRC
 
    #+BEGIN_SRC f90 :export
@@ -522,16 +631,28 @@
    #+END_SRC
 
    #+BEGIN_SRC f90
-    ! select case als Ersatz für verschachtelte if-clauses
-    select case (test)
-    case(10)
-       print *, 10
-    case(:9)
-       print *, "<10"
-    case default
-       print *, "Was auch immer..."
-    end select
+       ! select case als Ersatz für verschachtelte if-clauses
+       select case (test)
+       case(10)
+          print *, 10
+       case(:9)
+          print *, "<10"
+       case default
+          print *, "Was auch immer..."
+       end select
+   #+END_SRC
 
+   #+BEGIN_SRC f90
+       ! elementweise Zuordnung
+       forall (i = 1:10)
+          array(i) = array(i) + 1
+       end forall
+       ! elementweise Bearbeitung über Bedingung
+       where (array == 1)
+          array = array + 1
+       else where
+          array = 0
+       end where
    #+END_SRC
 
 ** Aufgabe
@@ -596,8 +717,8 @@
    - =intent=-Angabe geben Veränderlichkeit von Argumenten an: =in=, =out=, =inout=
    - =optional=-Argumente können, müssen aber nicht übergeben werden.
    #+BEGIN_SRC f90
-     character(:), allocatable, optional :: text
-     if (present (text)) print *, text
+       character(:), allocatable, optional :: text
+       if (present (text)) print *, text
    #+END_SRC
    - Übergabe der Argumente in *Reihenfolge*
    - Übergabe der Argumente über Name des Arguments: =a=array, b=array2=
@@ -649,8 +770,9 @@
    - =private=, =public=
 
 ** Zeichenketten
-   - =allocatable characters=
-   - =assumed length=
+
+   - Zeichenketten sind 1-dim. Arrays vom Typ =character=
+   - Zugriff auf Teile einer Zeichenkette durch Indizes
 
 ** Aufgabe
 
@@ -659,20 +781,20 @@
 ** =derived types=
    Einfacher =derived type=
    #+BEGIN_SRC f90
-     ! Typ Definition
-     type :: haus_t
-        real :: length
-        real :: width
-        real :: height
-     end type haus_t
-     type(haus_t) :: eigenheim
-     ! Konstruktor
-     eigenheim = haus_t (10.0, 8.0, 12.0) ! Länge, Breite und Höhe
-     eigenheim = haus_t ( &               ! Beliebige Reihenfolge
-          width = 8.0, &                  ! mit explizitem Aufruf
-          height = 12.0, &                ! der Argumente
-          length = 10.0)
-     ! Oder eigener Konstruktor durch ein überladenes Interface von haus_t
+       ! Typ Definition
+       type :: haus_t
+          real :: length
+          real :: width
+          real :: height
+       end type haus_t
+       type(haus_t) :: eigenheim
+       ! Konstruktor
+       eigenheim = haus_t (10.0, 8.0, 12.0) ! Länge, Breite und Höhe
+       eigenheim = haus_t ( &               ! Beliebige Reihenfolge
+            width = 8.0, &                  ! mit explizitem Aufruf
+            height = 12.0, &                ! der Argumente
+            length = 10.0)
+       ! Oder eigener Konstruktor durch ein überladenes Interface von haus_t
    #+END_SRC
    Erweiterer =derived type= mit Vererbung
    #+BEGIN_SRC f90
@@ -728,21 +850,21 @@
 ** Programm: Example 1
 
    #+BEGIN_SRC f90 :export code :noweb yes :tangle examples/example1.f08
-   <<example1>>
+       <<example1>>
    #+END_SRC
 
 ** Programm: Example 2
 
    #+BEGIN_SRC f90 :export code :noweb yes :tangle examples/example2.f08
-      program example2
-        implicit none
-        integer :: i
-        <<example2>>
-        print *, "*** Example 2 ***"
-        print *, "iarray = ", iarray
-        print *, "iarray2 = ", iarray2
-        print *, "iarray3 = ", iarray3
-      end program example2
+     program example2
+       implicit none
+       integer :: i
+       <<example2>>
+       print *, "*** Example 2 ***"
+       print *, "iarray = ", iarray
+       print *, "iarray2 = ", iarray2
+       print *, "iarray3 = ", iarray3
+     end program example2
    #+END_SRC
 
 ** Programm: Example 3
