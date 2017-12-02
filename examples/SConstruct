@@ -8,3 +8,4 @@ for i in range(1, 4):
 
 example += env.Program ("example7", "example7.f08")
 example += env.Program ("example46", "example46.f08")
+example += env.Program ("example8", "example8.f08")

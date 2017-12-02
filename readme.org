@@ -5,7 +5,7 @@
 #+OPTIONS: tasks:t tex:t timestamp:t title:t toc:t todo:t |:t
 #+TITLE: Fortran-Workshop
 #+SUBTITLE: Workshopreihe Programmiersprachen
-#+AUTHOR: \href{emailto:brass@physik.uni-siegen.de}{Simon Braß}, Jessica Reuter
+#+AUTHOR: \href{mailto:brass@phsyik.uni-siegen.de}{Simon Braß}, Jessica Reuter
 #+DATE: \today{}
 #+EMAIL: brass@physik.uni-siegen.de
 #+LANGUAGE: de-de
@@ -506,7 +506,7 @@
    - allokierbarer Array mit =allocatable=
 
    #+NAME: example2
-   #+BEGIN_SRC f90 :exports code
+   #+BEGIN_SRC f90
        integer, dimension(10) :: iarray
        integer, dimension(10, 2) :: iarray2
        integer, dimension(:), allocatable :: iarray3
@@ -530,12 +530,12 @@
     - Zugriff auf /slice/ durch =:=
     - Index-Variablen vom Typ =integer=
     #+BEGIN_SRC f90
-      integer, dimension(10, 3) :: 2d_array
-      ! ...
-      print *, 2d_array(5, 2) ! Element
-      print *, 2d_array(1:5, 1) ! Unterarray
-      print *, 2d_array(5, :) ! Slice im höchsten Index
-      print *, 2d_array(2 * i, i) ! i = {1, 2, 3}
+        integer, dimension(10, 3) :: 2d_array
+        ! ...
+        print *, 2d_array(5, 2) ! Element
+        print *, 2d_array(1:5, 1) ! Unterarray
+        print *, 2d_array(5, :) ! Slice im höchsten Index
+        print *, 2d_array(2 * i, i) ! i = {1, 2, 3}
     #+END_SRC
 
 *** Array-Speicher                                             :B_alertblock:
@@ -543,9 +543,9 @@
     :BEAMER_env: alertblock
     :END:
 
-   - Spalten-orientierter Array
-   - Anordnung von Array-Speicher nach niedrigster zur höchster Dimension
-   - Effizienz bei Schleifen über mehr-dim. Arrays
+    - Spalten-orientierter Array
+    - Anordnung von Array-Speicher nach niedrigster zur höchster Dimension
+    - Effizienz bei Schleifen über mehr-dim. Arrays
 
 *** Schlechtes Beispiel                                      :B_exampleblock:
     :PROPERTIES:
@@ -579,6 +579,7 @@
     #+END_SRC
     Der Speicher wird in der vorgegebenen Reihenfolge abgelaufen so, dass der Array effizient ausgelesen wird.
     Im Beispiel macht das natürlich keinen Unterschied wegen des =print= auf die Standardausgabe!
+
 
 ** =if-clause= und Schleifen
    :PROPERTIES:
@@ -617,7 +618,7 @@
        end do
    #+END_SRC
 
-   #+BEGIN_SRC f90 :export
+   #+BEGIN_SRC f90
        do ! "Endlos-Schleife"
           ! Tue etwas
           if (bedingung1) then
@@ -672,7 +673,7 @@
 
    Eine Funktion liefert einen Rückgabe-Wert aus verschiedenen Argumenten.
    Ähnlich einer Abbildung aus der Mathematik.
-   #+BEGIN_SRC f90 :export none
+   #+BEGIN_SRC f90 
      ! Funktion vom Typ integer
      integer function add (a, b) result (c)
        integer, intent(in) :: a
@@ -685,6 +686,23 @@
    - =pure= Funktionen sind ohne Nebeneffekte wie Ein-/Ausgabe
    - =elemental= Funktionen werden elementweise auf Arrays angewant, setzt =pure= voraus.
    - Bei Definition ohne =result= wird automatisch eine Rückgabe-Variable mit dem Namen und des Types der Funktion angelegt.
+
+
+** Aufgabe
+
+   - Schreiben Sie eine ganzzahlige Funktion, welche einen 1-dim. Array vom Typ =integer= nimmt und die Summe der Elemente berechnet.
+   - Schreiben Sie eine reelle Funktion, welche einen 1-dim. Array vom Typ =real= nimmt und das Produkt aller Elemente bildet.
+   - Schreiben Sie eine logische Funktion, welche nur =.true.= liefert, wenn kein Element eines =integer= Array null ist.
+   - Schreiben Sie eine reelle Funktion, welche einen 2-dim. Array vom Typ =real= nimmt und die Elemente der ersten Dimension durch Elemente der zweiten Dimension teilt.
+   - Schreiben Sie eine reelle Funktion, welche das Skalarprodukt zwischen zwei gleich-großen Vektoren bestimmt.
+
+*** Hinweis                                                  :B_exampleblock:
+    :PROPERTIES:
+    :BEAMER_env: exampleblock
+    :END:
+
+    - Mit der Funktion =size= können Sie die Größe eines Arrays bestimmen.
+    - [[Aufgabe: Funktionen][Lösung]]
 
 ** Subroutinen
    :PROPERTIES:
@@ -764,15 +782,39 @@
        end subroutine vector3_product
      end module vektoren
    #+END_SRC
-   - Modulkopf
-   - =use=, =use ::, only: name => module_name=
-   - =contains=
-   - =private=, =public=
+   - Einbindung von Modulen durch =use=
+   - Beschränkung durch =only=
+   - Umbenennung von geladenen Prozeduren =neu => alt=
+   - =private= Elemente nicht nach außen sichtbar
+   - =public= Elemente nach außen sichtbar
+   #+BEGIN_SRC f90
+     program main
+       use vektoren, only: vector_product => vector3_product
+       ! Nur vector3_product importieren und umbenennen
+       ! ...
+       call vector_product (a, b, c)
+       print *, "a x b = ", c
+     end program main
+   #+END_SRC
 
 ** Zeichenketten
 
-   - Zeichenketten sind 1-dim. Arrays vom Typ =character=
+   - Zeichenketten sind /quasi/ 1-dim. Arrays vom Typ =character=
+   - *Spezielle Syntax* =character(:)=
    - Zugriff auf Teile einer Zeichenkette durch Indizes
+   - Zeichenketten zusammenfügen mit =//=
+     #+NAME: example8
+     #+BEGIN_SRC f90
+       character(len=100) :: str
+       character(:), allocatable :: str2, str3 ! allocatable-string
+       str = "Hallo Welt!"
+       print *, str
+       str2 = "Hallo Welt! Ich bin neuer!!"
+       print *, str2
+       str3  = "Und meine Geschichte ist es..."
+       str2 = str2 // " " // str3           ! String konkatieren mit //
+       print *, str2
+     #+END_SRC
 
 ** Aufgabe
 
@@ -828,19 +870,20 @@
     allocate (alloc_array(25)) ! allokiere 25 Elemente
     zeiger => ziel
     zeiger => test ! Gibt eine Fehlermeldung
-    #+END_SR
-* Polymorphe Objekte und Type-gebundene Prozeduren
+    #+END_SRC
+   
+** Polymorphe Objekte und Type-gebundene Prozeduren
 
-  #+BEGIN_SRC f90
-      class(haus_t), allocatable :: objekt ! Polymorphes Objekt auf Basis von haus_t
-      allocate (halle_t :: objekt) ! allokiere vererbten Typ halle_t von haus_t
-      select type (object) ! Typ-sicherer Aufruf
-      type is (halle_t)
-         object%brandschutz = .true.
-      class is (haus_t)
-         object%length = 100.0
-      end select
-  #+END_SRC
+   #+BEGIN_SRC f90
+       class(haus_t), allocatable :: objekt ! Polymorphes Objekt auf Basis von haus_t
+       allocate (halle_t :: objekt) ! allokiere vererbten Typ halle_t von haus_t
+       select type (object) ! Typ-sicherer Aufruf
+       type is (halle_t)
+          object%brandschutz = .true.
+       class is (haus_t)
+          object%length = 100.0
+       end select
+   #+END_SRC
 
 * Beispiele                                                      :B_appendix:
   :PROPERTIES:
@@ -912,4 +955,69 @@
        print *, "vol = ", vol, "circ = ", circ
      end program example7
      <<example7>>
+   #+END_SRC
+
+** Programm: Example 8
+
+   #+BEGIN_SRC f90 :export code :noweb yes :tangle examples/example8.f08
+     program example8
+       implicit none
+       <<example8>>
+     end program example8
+   #+END_SRC
+
+* Lösung
+** Aufgabe: Funktionen
+   :PROPERTIES:
+   :BEAMER_opt: allowframebreaks
+   :END:
+
+   #+BEGIN_SRC f90 :export code :noweb yes :tangle solutions/solutions1.f08
+     program solution1
+       implicit none
+       integer :: i
+       integer, dimension(10) :: i_vector
+       real, dimension(5) :: r_vector
+       print *, "*** Lösung 1 ***"
+       i_vector = [(i, i = 1, 10)]
+       r_vector = [(0.2 * i, i = 1, 5)]
+       print *, "sum_vector: ", sum_vector (i_vector)
+       print *, "product_vector: ", product_vector (r_vector)
+       print *, "non_zero_element: ", non_zero_element (i_vector - 1)
+     contains
+       <<solution1>>
+       <<solution2>>
+       <<solution3>>
+     end program solution1
+   #+END_SRC
+   #+NAME: solution1
+   #+BEGIN_SRC f90 :export none
+     integer function sum_vector (vector) result (sum)
+        integer, dimension(:), intent(in) :: vector
+        integer :: i, n_vector
+        n_vector = size (vector)
+        sum = 0
+        do i = 1, n_vector
+           sum = sum + vector(i)
+        end do
+      end function sum_vector
+   #+END_SRC
+   #+NAME: solution2
+   #+BEGIN_SRC f90 :export none
+     real function product_vector (vector) result (product)
+        real, dimension(:), intent(in) :: vector
+        integer :: i, n_vector
+        n_vector = size (vector)
+        product = 1
+        do i = 1, n_vector
+           product = product * vector(i)
+        end do
+      end function product_vector
+   #+END_SRC
+   #+NAME: solution3
+   #+BEGIN_SRC f90 :export none
+     logical function non_zero_element (vector) result (yorn)
+         integer, dimension(:), intent(in) :: vector
+         yorn = .not. any (vector == 0) ! all (vector /= 0)
+       end function non_zero_element
    #+END_SRC
