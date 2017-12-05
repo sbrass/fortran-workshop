@@ -5,7 +5,7 @@
 #+OPTIONS: tasks:t tex:t timestamp:t title:t toc:t todo:t |:t
 #+TITLE: Fortran-Workshop
 #+SUBTITLE: Workshopreihe Programmiersprachen
-#+AUTHOR: \href{mailto:brass@phsyik.uni-siegen.de}{Simon Braß}, Jessica Reuter
+#+AUTHOR: \href{mailto:brass@physik.uni-siegen.de}{Simon Braß}, Jessica Reuter
 #+DATE: \today{}
 #+EMAIL: brass@physik.uni-siegen.de
 #+LANGUAGE: de-de
@@ -197,7 +197,6 @@
     - Parallelisierung im Message-Passing Interface standardisiert
 
 * Konzepte und Syntax
-
 ** Warum =Fortran=?
 
 *** Vorteile von =Fortran=
@@ -337,6 +336,12 @@
 
     *Wichtig:* Aus Rückwartskompatibilität immer =implicit none= benutzen, damit Fortran nicht automatisch Variablen mit entsprechenden Typen deklariert.
 
+*** Deklaration                                                :B_alertblock:
+    :PROPERTIES:
+    :BEAMER_env: alertblock
+    :END:
+    Variablen können nur *am Anfang* (des Programmes/Modules/Prozedur) deklariert werden, sobald eine andere Anweisung kommt, sind Deklarationen verboten.
+
 ** Ein- und Ausgabe
 
 *** Listen-formatierte Ein-/Ausgabe                          :B_exampleblock:
@@ -413,7 +418,6 @@
       Hallo Welt!
       i =           42
     #+END_SRC
-
 
 ** Aufgabe
 
@@ -507,19 +511,37 @@
 
    #+NAME: example2
    #+BEGIN_SRC f90
-       integer, dimension(10) :: iarray
+       integer, dimension(20) :: iarray
        integer, dimension(10, 2) :: iarray2
        integer, dimension(:), allocatable :: iarray3
        ! Maximal 7-dim. Array
        iarray = 10                     ! alle Element auf 10 setzen
-       iarray = [(i,i=1, 10)]           ! Konstruktor
-       iarray = [1, 1, 2, 3, 5, 8, 13, 21, 43, 64]
+       iarray = [(i,i=1, 20)]           ! Konstruktor
+       iarray = [1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
        iarray2(:, 1) = [(i, i = 1, 10)]
        iarray2(:, 2) = [(i**2, i = 1, 10)]
        iarray3 = [1, 2]                ! Allocate on assignment
        deallocate (iarray3)
        allocate (iarray3(10), source = 1)
    #+END_SRC
+
+*** Array-Konstruktor                                        :B_exampleblock:
+    :PROPERTIES:
+    :BEAMER_env: exampleblock
+    :END:
+
+    - 1-dim. Array kann mit =[...]= initialisiert werden
+    - mehr-dim. Array kann mit der =reshape=-Funktion initialisiert werden
+    - =reshape (1D-ARRAY, SHAPE...)= mit einem eindim.-Array von der Größe von =array= und einem =SHAPE=-Array
+
+**** Mehr-dim. Konstruktor
+
+     #+NAME: example2
+     #+BEGIN_SRC f90 :export none
+         ! Fülle iarray2 mit iarray2 auf
+         iarray2 = reshape (iarray, [10, 2])
+     #+END_SRC
+
 *** Index                                                    :B_exampleblock:
     :PROPERTIES:
     :BEAMER_env: exampleblock
@@ -529,6 +551,7 @@
     - Einzel-Element oder Unter-Array
     - Zugriff auf /slice/ durch =:=
     - Index-Variablen vom Typ =integer=
+    - Index läuft von =1...N=
     #+BEGIN_SRC f90
         integer, dimension(10, 3) :: 2d_array
         ! ...
@@ -556,7 +579,7 @@
         integer :: i, j
         do i = 1, 100 ! linker, innerer Index
            do j = 1, 25 ! rechter, äußerer Index
-              print *, a(i)
+              print *, a(i, j)
            end do
         end do
     #+END_SRC
@@ -573,14 +596,31 @@
         integer :: i, j
         do j = 1, 25 ! rechter, äußerer Index
            do i = 1, 100 ! linker, innerer Index
-              print *, a(i)
+              print *, a(i, j)
            end do
         end do
     #+END_SRC
     Der Speicher wird in der vorgegebenen Reihenfolge abgelaufen so, dass der Array effizient ausgelesen wird.
     Im Beispiel macht das natürlich keinen Unterschied wegen des =print= auf die Standardausgabe!
 
+*** Spezielle Funktionen                                       :B_alertblock:
+    :PROPERTIES:
+    :BEAMER_env: alertblock
+    :END:
 
+    - =size(ARRAY, DIM...)= gibt die Größe des Arrays zurück, mit =DIM= kann eine Dimension ausgewählt werden
+    - =lbound(ARRAY, DIM...)= gibt alle kleinsten Index des Arrays (in der jeweiligen Dimension)
+    - =ubound(ARRAY, DIM...)= gibt alle größten Index des Arrays (in der jeweiligen Dimension)
+
+    #+NAME: example_array_functions
+    #+BEGIN_SRC f90 :export none
+        integer, dimension(10, 5, 20) :: array
+        print *, "size(array) = ", size (array)
+        print *, "size(array, dim=1) = ", size (array, dim=1)
+        print *, "lbound(array) = ", lbound(array)
+        print *, "ubound(array, dim=2)", ubound(array, dim=2)
+        print *, "lbound(array, dim=3) = ", lbound(array, dim=3)
+    #+END_SRC
 ** =if-clause= und Schleifen
    :PROPERTIES:
    :BEAMER_opt: allowframebreaks
@@ -589,7 +629,7 @@
    - logischen Ausdruck aus logischen Operatoren und Variablen
    - =select case=
    - =do= / =do while= / =cycle= / =exit=
-   #+NAME: example4
+   #+NAME: example_conditionals
    #+BEGIN_SRC f90 :export none
        if (a == b) then ! /= für ungleich
           print *, "a == b"
@@ -600,7 +640,7 @@
        end if
    #+END_SRC
 
-   #+NAME: example5
+   #+NAME: example_loops
    #+BEGIN_SRC f90 :export none
        do i = 1, 10 ! Drittes Argument gibt Iterationsvorschrift
           print *, "i = ", i
@@ -610,7 +650,7 @@
        end do
    #+END_SRC
 
-   #+NAME: example6
+   #+NAME: example_loops
    #+BEGIN_SRC f90 :export none
        do while (a > b)
           b = b + 2
@@ -618,17 +658,21 @@
        end do
    #+END_SRC
 
+   - Schleifen können ein (eindeutiges) Label haben
+   - Label kann wichtig sein für =cycle= oder =exit=
+   - Zugriff auf Schleife mit Label durch =cycle/exit label=
+
    #+BEGIN_SRC f90
-       do ! "Endlos-Schleife"
+       infty: do ! "Endlos-Schleife"
           ! Tue etwas
           if (bedingung1) then
-             cycle ! Wiederhole Schleife sofort
+             cycle infty ! Wiederhole Schleife sofort
           else if (bedingung2) then
-             exit ! Beende Schleife sofort
+             exit infty ! Beende Schleife sofort
           else
              ! Tue etwas ganz anderes
           end if
-       end do
+       end do infty
    #+END_SRC
 
    #+BEGIN_SRC f90
@@ -673,7 +717,7 @@
 
    Eine Funktion liefert einen Rückgabe-Wert aus verschiedenen Argumenten.
    Ähnlich einer Abbildung aus der Mathematik.
-   #+BEGIN_SRC f90 
+   #+BEGIN_SRC f90
      ! Funktion vom Typ integer
      integer function add (a, b) result (c)
        integer, intent(in) :: a
@@ -686,7 +730,6 @@
    - =pure= Funktionen sind ohne Nebeneffekte wie Ein-/Ausgabe
    - =elemental= Funktionen werden elementweise auf Arrays angewant, setzt =pure= voraus.
    - Bei Definition ohne =result= wird automatisch eine Rückgabe-Variable mit dem Namen und des Types der Funktion angelegt.
-
 
 ** Aufgabe
 
@@ -805,31 +848,150 @@
    - Zeichenketten zusammenfügen mit =//=
      #+NAME: example8
      #+BEGIN_SRC f90
-       character(len=100) :: str
-       character(:), allocatable :: str2, str3 ! allocatable-string
-       str = "Hallo Welt!"
-       print *, str
-       str2 = "Hallo Welt! Ich bin neuer!!"
-       print *, str2
-       str3  = "Und meine Geschichte ist es..."
-       str2 = str2 // " " // str3           ! String konkatieren mit //
-       print *, str2
+         character(len=100) :: str
+         character(:), allocatable :: str2, str3 ! allocatable-string
+         str = "Hallo Welt!"
+         print *, str
+         str2 = "Hallo Welt! Ich bin neuer!!"
+         print *, str2
+         str3  = "Und meine Geschichte ist es..."
+         str2 = str2 // " " // str3           ! String konkatieren mit //
+         print *, str2
      #+END_SRC
 
-** Aufgabe
+** Sonstiges
 
-   Finden Sie alle Cluster
+   Was nicht behandelt wurde:
+
+   - Datentyp-Genauigkeit über =kind=
+   - Vertiefung von Ein- und Ausgabe
+   - Umgang mit Dateien
+   - =return= in Prozeduren
+   - Rekursion
+   - =interfaces= / Operator-=interfaces=
+   - Prozeduren als Argumente
+
+** Wiederholung 1. Tag
+
+   - Intrinsische Datentypen
+   - Bedingungen und Schleifen
+   - Funktionen und Subroutinen
+   - Module
+
+*** Ziel 2. Tag
+
+    Objekt-orientierte Liste mit beliebig erweiterbaren Listen-Elementen und Strukturierung auf verschiedene Module und Dateien.
+
+* Objekt-orientiertes Programmieren
+
+** Zeiger
+   :PROPERTIES:
+   :BEAMER_opt: shrink
+   :END:
+
+   - Zeiger entspricht einer Speicher-Adresse einer /anderen/ Variable
+   - Ziel-Objekt muss vom Typ =target= sein
+   - Zeiger-Sicherheit: Programmabbruch bei Zugriff auf undefinierten Zeiger
+
+   #+NAME: example10
+   #+BEGIN_SRC f90
+       real, dimension(:, :), pointer :: p_array ! undefiniert
+       real, dimension(10, 10), target :: array1, array2
+       array1 = 1.
+       array2 = 2.
+       ! Zuweisung Zeiger auf Ziel
+       p_array => array1
+       if (.not. associated (p_array)) then ! Zeiger ist nicht zugewiesen
+          p_array => array2
+       end if
+       print *, p_array(:, 1)
+       nullify (p_array)               ! Zurücksetzen
+       p_array => array2
+       print *, p_array(:, 1)
+       nullify (p_array)
+       if (.not. associated (p_array)) then
+          print *, p_array
+       end if
+   #+END_SRC
+
+** =interfaces=
+   :PROPERTIES:
+   :BEAMER_opt: allowframebreaks
+   :END:
+
+   Ein =interface= stellt dem Kompiler aller Informationen zur Prozedur-Art, sowie Argumente usw. zur Verfügung.
+   - Implizites =interface= automatisch durch Deklaration einer Prozedur
+   - Explizite Definition eines =interfaces= für Prozeduren, Operatoren oder Konstruktoren
+   - Überladen eines =interfaces= mit einer weiteren Definition =generic interface=
+   #+BEGIN_SRC f90
+       interface
+          logical function non_zero (a) return (yorn)
+            integer, intent(a) :: a
+          end function non_zero
+       end interface
+   #+END_SRC
+   #+LATEX: \framebreak
+   - Operator-=interface= durch Modul-Prozedur
+   - Funktion mit zwei =intent(in)=-Argumenten
+   - Assignment-=interface= durch Modul-Prozedur
+   - Subroutinen mit erstem Argument mit =intent(out)= oder =intent(inout)= und zweitem Argument =intent(in)=
+   #+NAME: example_operator
+   #+BEGIN_SRC f90
+     module math
+       implicit none
+       interface operator(*)
+          module procedure matrix_vector_mult
+       end interface operator(*)
+     contains
+       function matrix_vector_mult (A, x) result (y)
+         integer, dimension(:, :), intent(in) :: A
+         integer, dimension(:), intent(in) :: x
+         integer, dimension (size (x)) :: y
+         integer :: i
+         do i = 1, size (x)
+            y(i) = sum(A(:, i)) * x(i)
+         end do
+       end function matrix_vector_mult
+     end module math
+   #+END_SRC
+   #+LATEX: \framebreak
+   - Prozeduren als Argument
+   - Argument durch =interface=
+   #+BEGIN_SRC f90
+     real function integrate (func, a, b) result (value)
+       interface
+          real function func (x)
+            real, intent(in) :: x
+          end function func
+       end interface
+       real, intent(in) :: a, b
+       ! Integrieren mit Simpson-Regel
+     end function integrate
+   #+END_SRC
 
 ** =derived types=
-   Einfacher =derived type=
+   :PROPERTIES:
+   :BEAMER_opt: allowframebreaks
+   :END:
+
+   - eigene Typ-Definition aus intrinsischen Typen und =derived types=
+   - =derived type= kann =allocatables= und =pointer= beinhalten
+   - vordefinierter Konstruktor
+   - Typ-Name per /Konvention/ mit =_t=
+   - =private= / =public= (allgemein oder elementweise)
+   #+NAME: exammple_type_def
    #+BEGIN_SRC f90
-       ! Typ Definition
-       type :: haus_t
-          real :: length
-          real :: width
-          real :: height
-       end type haus_t
-       type(haus_t) :: eigenheim
+     ! Typ Definition
+     type :: haus_t
+        private
+        real, public :: length
+        real, public :: width
+        real, public :: height
+     end type haus_t
+     type(haus_t) :: eigenheim
+   #+END_SRC
+   #+NAME: example_type
+   #+BEGIN_SRC f90
        ! Konstruktor
        eigenheim = haus_t (10.0, 8.0, 12.0) ! Länge, Breite und Höhe
        eigenheim = haus_t ( &               ! Beliebige Reihenfolge
@@ -837,8 +999,14 @@
             height = 12.0, &                ! der Argumente
             length = 10.0)
        ! Oder eigener Konstruktor durch ein überladenes Interface von haus_t
+       print *, "eigenheim%height = ", eigenheim%height ! Zugriff auf Element
    #+END_SRC
-   Erweiterer =derived type= mit Vererbung
+   #+LATEX: \framebreak
+   - Erweiterung eines =derived type= durch Vererbung
+   - Überschreiben aller Eigenschaften möglich
+   - Zugriff auf alle Elemente durch =variable%element=
+   - Zugriff auf ursprüngliche Elemente des Basis-Typ durch =new_type%basic_type%element=
+   #+NAME: example_type_def
    #+BEGIN_SRC f90
        type, extends(haus_t) :: halle_t
           character(len=20) :: fassadenfarbe = "grün"
@@ -846,43 +1014,227 @@
        end type halle_t
        type(halle_t) :: gewerbe ! hat alle Eigenschaften von haus_t und hallo_t
    #+END_SRC
-
-*** Weitere Attribute
-
-    - public ::
-    - private ::
-    - allocatable :: Speicher kann dynamisch mit =allocate= bereit gestellt werden
-    - pointer :: Zeigevariable (kann Variable mit Attribut =target= zeigen)
-    - target :: Zielvariable
-    - dimension :: Variable ist ein Array (max. 7 dimensional)
-    - intent :: im Kontext einer Prozeduren: =in=, =out= oder =inout=, legt fest wie Variable in der Prozedure benutzt werden kann
-    - optional ::
-    - save ::
-
-    #+BEGIN_SRC f90
-    integer, public :: test ! Ist in allen Programmteilen sichtbar
-    integer, private :: private_test ! Ist in anderen Modulen nicht sichtbar/außerhalb eines Types
-    integer, dimension(10) :: array ! 1-dim. Array mit zehn Elementen
-    integer, dimension(:), allocatable :: alloc_array ! allokierbare, 1-dim. Array
-    integer, pointer :: zeiger
-    integer, target :: ziel = 42
-    !
-    allocate (alloc_array(25)) ! allokiere 25 Elemente
-    zeiger => ziel
-    zeiger => test ! Gibt eine Fehlermeldung
-    #+END_SRC
-   
-** Polymorphe Objekte und Type-gebundene Prozeduren
-
+   #+NAME: example_type
    #+BEGIN_SRC f90
-       class(haus_t), allocatable :: objekt ! Polymorphes Objekt auf Basis von haus_t
-       allocate (halle_t :: objekt) ! allokiere vererbten Typ halle_t von haus_t
-       select type (object) ! Typ-sicherer Aufruf
-       type is (halle_t)
-          object%brandschutz = .true.
-       class is (haus_t)
-          object%length = 100.0
+       gewerbe = halle_t ( &
+            width = 8.0, height = 12.0, length = 20., &
+            fassadenfarbe = "rot", brandschutz = .true.)
+       print *, gewerbe%haus_t%width, gewerbe%width
+   #+END_SRC
+   #+LATEX: \framebreak
+   - /abstrakter/ Typ als Basis-Typ *ohne* direkte Verwendung
+   - abstrakter Typ muss erweitert werden
+   #+NAME: example_type_def
+   #+BEGIN_SRC f90
+       type, abstract :: grundstueck_t
+          logical :: bebaut = .false.
+       end type grundstueck_t
+       type, extends(grundstueck_t) :: bau_grundstueck_t
+          real :: length, height, width
+          logical :: construction
+       end type bau_grundstueck_t
+       type, extends(grundstueck_t) :: wald_t
+          real :: anteil_baeume
+       end type wald_t
+   #+END_SRC
+   - polymorphe Objekte/=class(...)=-Objekte
+   - polymorpe Objekte erben alle Eigenschaften, bzw. können alle Eigenschaften überladen
+   - Typ-Sicherheit durch =select type=
+   #+NAME: example_type
+   #+BEGIN_SRC f90
+       class(grundstueck_t), allocatable :: grundstueck
+       allocate (wald_t :: grundstueck)
+       select type (grundstueck)
+       type is (wald_t)
+          grundstueck%length = 100
+          grundstueck%height = 15
+          grundstueck%width = 250
+          grundstueck%anteil_baeume = 0.8
+          ! type is (bau_grundstueck_t)
+          ! class is (...)
+          ! class default
        end select
+   #+END_SRC
+   - Typ-gebundene Prozeduren
+   - 1. Argument ist =pass=-Objekt durch =class(...)=
+   - explizite Angabe des =pass=-Objekt mit =pass(...)=
+   - =nopass=, =pass=, =private/public=, =deferred=
+   - Überladen von Prozeduren kann verhindert werden durch =non_overridable=
+   - =deferred=-Prozeduren /nur/ bei =abstract types=
+   - =generic=
+   - =final=
+   #+BEGIN_SRC f90
+     type :: func_t
+      contains
+        procedure, pass(object), public :: write => func_write
+        procedure, private :: quadrature => func_quadrature
+        procedure, private :: simpson => func_simpson
+        generic, public :: integrate => simpsons, quadrature
+        final :: func_finalize
+     end type func_t
+   #+END_SRC
+** Aufgabe
+   :PROPERTIES:
+   :BEAMER_opt: allowframebreaks
+   :END:
+
+   Implementieren Sie eine Objekt-orientierte Liste mit beliebig erweiterbaren Listen-Elementen. Nehmen Sie folgende Punkte als Hilfestellung:
+
+   1. Schreiben Sie ein Modul =list=.
+   2. Das Modul definiert einen abstrakten Datentyp =basic_list_element_t= für ein beliebiges Listen-Element, welches nur einen Zeiger auf das nächste Element enthält und einen Index-=integer=.
+   3. Der abstrakte Typ =basic_list_element_t= soll eine =deferred= Typ-gebundene Prozedur =write= besitzen. Geben Sie ein =abstract interface= vor.
+   4. Das Modul definiert einen Typen =basic_list_t=, welcher einen Zeiger auf das erste Elemente und das nächste (letzte) Element besitzt.
+   5. Der Typ =basic_list_t= soll mehrere Typ-gebundene Prozeduren besitzen, eine =add=-Prozedur, welche ein Element nimmt und zur Liste anfügt, sowie eine =write=-Prozedur.
+   6. Der Typ =basic_list_t= soll eine =final=-Prozedur besitzen, welche die Liste elementweise deallokiert.
+   7. Schreiben Sie ein Modul =list_integer= und erweiteren Sie darin, den abstrakten Typ =basic_list_element_t=, so dass Sie einen =integer=-Wert im Element speichern können.
+   8. Implementieren Sie im Modul =list_integer= die deferred Prozedur =write= von =basic_list_element_t=.
+   9. Schreiben Sie ein Testprogramm, welches die Liste mit mehreren =integer=-Werten füllt und geben Sie sich diese aus.
+
+** Modul =list=
+   :PROPERTIES:
+   :BEAMER_opt: allowframebreaks
+   :END:
+   - abstrakter Datentyp =basic_list_element_t= mit Zeiger auf das nächste Element und dem Index des Elements
+   - Datentyp =basic_list_t= als Verwalter der Listen-Struktur mit =add=, =write= und =final=
+   - =abstract interface= für deferred Typ-gebundene Prozedur =basic_list_element_write=, welche später vom erweiternden Typen implementiert werden muss.
+   #+NAME: module_list
+   #+BEGIN_SRC f90 :export none 
+     module list
+       type, abstract :: basic_list_element_t
+          class(basic_list_element_t), pointer :: next => null ()
+          integer :: index = -1
+        contains
+          procedure(basic_list_element_write), deferred, public :: write
+       end type basic_list_element_t
+       type :: basic_list_t
+          private
+          class(basic_list_element_t), pointer :: first => null (), last => null ()
+        contains
+          procedure, public :: add => basic_list_add
+          procedure, public :: write => basic_list_write
+          final :: basic_list_final
+       end type basic_list_t
+       abstract interface
+          subroutine basic_list_element_write (self, unit)
+            import :: basic_list_element_t
+            class(basic_list_element_t), intent(in) :: self
+            integer, intent(in) :: unit
+          end subroutine basic_list_element_write
+       end interface
+     contains
+       <<module_list_contains>>
+     end module list
+   #+END_SRC
+   #+LATEX: \framebreak
+   - =basic_list_add= nimmt ein polymorphes Objekt vom Typ =basic_list_element_t= und fügt an das Ende der Liste an und setzt den Index des Elementes.
+   - =basic_list_write= schreibt den Inhalt der Liste auf die Standardausgabe.
+   - =basic_list_final= implementiert das Deallokieren der Listen-Elemente und wird automatisch aufgerufen, wenn das Listen-Objekt zerstört wird.
+   #+NAME: module_list_contains
+   #+BEGIN_SRC f90 :export none
+     subroutine basic_list_add (self, element)
+       class(basic_list_t), intent(inout) :: self
+       class(basic_list_element_t), intent(inout), target :: element
+       if (.not. associated (self%first)) then
+          self%first => element
+          self%last => element
+          element%index = 1
+       else
+          self%last%next => element
+          element%index = self%last%index + 1
+          self%last => element
+       end if
+     end subroutine basic_list_add
+     subroutine basic_list_write (self, unit)
+       class(basic_list_t), intent(in) :: self
+       integer, intent(in) :: unit
+       class(basic_list_element_t), pointer :: element
+       print *, "*** basic_list_write ***"
+       element => self%first
+       do while (associated (element))
+          call element%write (unit)
+          element => element%next
+       end do
+     end subroutine basic_list_write
+     subroutine basic_list_final (self)
+       type(basic_list_t), intent(inout) :: self
+       class(basic_list_element_t), pointer :: element
+       do while (associated (self%first))
+          element => self%first
+          self%first => self%first%next
+          deallocate (element)
+       end do
+     end subroutine basic_list_final
+   #+END_SRC
+** Modul =list_int=
+   :PROPERTIES:
+   :BEAMER_opt: allowframebreaks
+   :END:
+   - Der Typ =list_int= erweitert den abstrakten Datentyp so, dass das Element ein =integer=-Wert beinhaltet.
+   - Das =interface list_element_int_t= überlädt das Standard-=interface= des Typ-Konstruktor mit einer eigenen Funktion.
+   #+NAME: module_list_int
+   #+BEGIN_SRC f90 :export none
+     module list_int
+       use list, only: basic_list_element_t
+       implicit none
+       private
+       type, extends (basic_list_element_t) :: list_element_int_t
+          private
+          integer :: value = 0
+        contains
+          procedure, public :: write => list_element_int_write
+       end type list_element_int_t
+       interface list_element_int_t
+          module procedure list_element_int_init
+       end interface list_element_int_t
+       public :: list_element_int_t
+     contains
+       <<module_list_int_contains>>
+     end module list_int
+   #+END_SRC
+   #+LATEX: \framebreak
+   - Die Funktion =list_element_int_init= wird über das =interface= zum Konstruktor des Datentyps.
+   - Die Prozedure =list_element_int_write= implementiert die deferred Typ-gebundene Prozedur.
+   #+NAME: module_list_int_contains
+   #+BEGIN_SRC f90 :export none
+     type(list_element_int_t) function list_element_int_init (value) result (self)
+       integer, intent(in) :: value
+       self%value = value
+     end function list_element_int_init
+     subroutine list_element_int_write (self, unit)
+       class(list_element_int_t), intent(in) :: self
+       integer, intent(in) :: unit
+       print *, "value(", self%index, ") = ", self%value
+     end subroutine list_element_int_write
+   #+END_SRC
+** Testprogramm
+   :PROPERTIES:
+   :BEAMER_opt: shrink
+   :END:
+   - Die Liste wird mit jeweils neu-allokierten Elementen gefüllt und im Anschluss wird die Liste auf der Standardausgabe ausgegeben.
+   #+NAME: test_list
+   #+BEGIN_SRC f90 :export none
+     program example
+       use list
+       use list_int
+       implicit none
+       type(basic_list_t) :: l
+       integer :: i
+       do i = 1, 10
+          call add_int_element (i * (i - 1))
+       end do
+       call l%write (0)
+     contains
+       subroutine add_int_element (value)
+         integer, intent(in) :: value
+         class(basic_list_element_t), pointer :: element
+         allocate (list_element_int_t :: element)
+         select type (element)
+         type is (list_element_int_t)
+            element = list_element_int_t (value)
+         end select
+         call l%add (element)
+       end subroutine add_int_element
+     end program example
    #+END_SRC
 
 * Beispiele                                                      :B_appendix:
@@ -925,7 +1277,7 @@
      end program example3
    #+END_SRC
 
-** Programm: Example 4-6
+** Programm: =if-clause= und Schleifen
 
    #+BEGIN_SRC f90 :export code :noweb yes :tangle examples/example46.f08
      program example46
@@ -935,9 +1287,8 @@
        print *, "*** Beispiel 4-6 ***"
        print *, "a = ", a
        print *, "b = ", b
-       <<example4>>
-       <<example5>>
-       <<example6>>
+       <<example_conditionals>>
+       <<example_loops>>
      end program example46
    #+END_SRC
 
@@ -966,6 +1317,51 @@
      end program example8
    #+END_SRC
 
+** Programm: Example 9
+
+   #+BEGIN_SRC f90 :export code :noweb yes :tangle examples/example9.f08
+     program example9
+       implicit none
+       <<example9>>
+     end program example9
+   #+END_SRC
+
+** Programm: Example 10
+
+   #+BEGIN_SRC f90 :export code :noweb yes :tangle examples/example10.f08
+     program example10
+       implicit none
+       <<example10>>
+     end program example10
+   #+END_SRC
+
+** Programm: Array Funktionen
+   :PROPERTIES:
+   :BEAMER_opt: shrink
+   :END:
+
+   #+BEGIN_SRC f90 :export code :noweb yes :tangle examples/example_array_functions.f08
+     program example
+       implicit none
+       <<example_array_functions>>
+     end program example
+   #+END_SRC
+** Programm: Operator
+   :PROPERTIES:
+   :BEAMER_opt: shrink
+   :END:
+   #+BEGIN_SRC f90 :export code :noweb yes :tangle examples/example_operator.f08
+       <<example_operator>>
+       program example
+         use math
+         implicit none
+         integer, dimension(3, 2) :: A
+         integer, dimension(2) :: x
+         A = reshape ([1, 5, 4, 2, 3, 4], shape=[3, 2])
+         x = [10, -3]
+         print *, "A.x = ", A * x
+       end program example
+   #+END_SRC
 * Lösung
 ** Aufgabe: Funktionen
    :PROPERTIES:
@@ -993,31 +1389,47 @@
    #+NAME: solution1
    #+BEGIN_SRC f90 :export none
      integer function sum_vector (vector) result (sum)
-        integer, dimension(:), intent(in) :: vector
-        integer :: i, n_vector
-        n_vector = size (vector)
-        sum = 0
-        do i = 1, n_vector
-           sum = sum + vector(i)
-        end do
-      end function sum_vector
+       integer, dimension(:), intent(in) :: vector
+       integer :: i, n_vector
+       n_vector = size (vector)
+       sum = 0
+       do i = 1, n_vector
+          sum = sum + vector(i)
+       end do
+     end function sum_vector
    #+END_SRC
    #+NAME: solution2
    #+BEGIN_SRC f90 :export none
      real function product_vector (vector) result (product)
-        real, dimension(:), intent(in) :: vector
-        integer :: i, n_vector
-        n_vector = size (vector)
-        product = 1
-        do i = 1, n_vector
-           product = product * vector(i)
-        end do
-      end function product_vector
+       real, dimension(:), intent(in) :: vector
+       integer :: i, n_vector
+       n_vector = size (vector)
+       product = 1
+       do i = 1, n_vector
+          product = product * vector(i)
+       end do
+     end function product_vector
    #+END_SRC
    #+NAME: solution3
    #+BEGIN_SRC f90 :export none
      logical function non_zero_element (vector) result (yorn)
-         integer, dimension(:), intent(in) :: vector
-         yorn = .not. any (vector == 0) ! all (vector /= 0)
-       end function non_zero_element
+       integer, dimension(:), intent(in) :: vector
+       yorn = .not. any (vector == 0) ! all (vector /= 0)
+     end function non_zero_element
+   #+END_SRC
+** Aufgabe: Liste
+   :PROPERTIES:
+   :BEAMER_opt: shrink
+   :END:
+
+   #+BEGIN_SRC f90 :export code :noweb yes :tangle solutions/list.f08
+   <<module_list>>
+   #+END_SRC
+
+   #+BEGIN_SRC f90 :export code :noweb yes :tangle solutions/list_int.f08
+   <<module_list_int>>
+   #+END_SRC
+
+   #+BEGIN_SRC f90 :export code :noweb yes :tangle solutions/test_list.f08
+   <<test_list>>
    #+END_SRC
