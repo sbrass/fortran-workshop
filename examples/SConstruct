@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 env = Environment (F08="gfortran",
-                   F08FLAGS="-fbacktrace -Wall -g")
+                   F08FLAGS="-fbacktrace -fcheck=all -Wall -g")
 example = []
 for i in range(1, 4):
     example += env.Program ("example{}".format(i), "example{}.f08".format(i))
@@ -9,3 +9,8 @@ for i in range(1, 4):
 example += env.Program ("example7", "example7.f08")
 example += env.Program ("example46", "example46.f08")
 example += env.Program ("example8", "example8.f08")
+example += env.Program ("example9", "example9.f08")
+example += env.Program ("example10", "example10.f08")
+
+example += env.Program ("example_array_functions", "example_array_functions.f08")
+example += env.Program ("example_operator", "example_operator.f08")
